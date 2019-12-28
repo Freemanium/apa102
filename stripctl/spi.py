@@ -1,9 +1,10 @@
 from spidev import SpiDev
 
 class SPI:
-    def __init__(self, bus_index, dev_index):
+    def __init__(self, bus_index, dev_index, freq=8*1000**2):
         self.bus = bus_index
         self.dev = dev_index
+        self.freq = freq
         self._spi = None
 
         self._open()
@@ -15,7 +16,7 @@ class SPI:
         if not self._spi:
             self._spi = SpiDev()
             self._spi.open(self.bus, self.dev)
-            self._spi.max_speed_hz = 8*1000**2
+            self._spi.max_speed_hz = self.freq
     
     def _close(self):
         if self._spi:
