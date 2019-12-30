@@ -23,15 +23,14 @@ def make_rgb(x):
         raise TypeError(x)
 
 class APA102:
-    def __init__(self, num_leds, auto_flush=False, bus_index=0, dev_index=0):
+    def __init__(self, num_leds, auto_flush=False, base_state=(0x00, 0x00, 0x00), bus_index=0, dev_index=0):
         self.num_leds = num_leds
+        self.base_state = base_state
         self._spi = SPI(bus_index, dev_index)
-
-        self.auto_flush = auto_flush
 
     def reset(self):
         self._level = 1.0
-        self._state = [(0xFF, 0xFF, 0xFF)] * len(self)
+        self._state = [self.base_state] * len(self)
         if self.auto_flush:
             self.flush()
     
