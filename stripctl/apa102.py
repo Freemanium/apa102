@@ -33,6 +33,8 @@ class APA102:
     def reset(self):
         self._level = 1.0
         self._state = [(0xFF, 0xFF, 0xFF)] * len(self)
+        if self.auto_flush:
+            self.flush()
     
     @property
     def level(self):
@@ -72,7 +74,7 @@ class APA102:
         # start frame
         data += [0x00] * 4
 
-        brightness = int(self.level * 0b00111111) | 0b11000000
+        brightness = int(self.level * 0b00011111) | 0b11100000
         for r, g, b in self.state:
             data += [brightness, b, g, r]
         
@@ -110,3 +112,14 @@ class APA102:
     
     def __iter__(self):
         return iter(self.state)
+    
+    def iter_idx(self):
+        return iter(range(len(self.state)))
+    
+    def __enter__(self):
+        self._old_auto_flush = self.auto_flush
+        self.auto_flush = False
+    
+    def __exit__(self, ex_type, ex_val, traceback):
+        self.flush()
+        self.auto_flush = self._old_auto_flush
