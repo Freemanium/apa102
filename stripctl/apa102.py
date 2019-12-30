@@ -1,4 +1,4 @@
-from spi import SPI
+from .spi import SPI
 
 # TODO: Test if brightness setting can be changed per-led
 
@@ -32,7 +32,7 @@ class APA102:
 
     def reset(self):
         self._level = 1.0
-        self._state = [0xFF] * len(self)
+        self._state = [(0xFF, 0xFF, 0xFF)] * len(self)
     
     @property
     def level(self):
@@ -72,7 +72,7 @@ class APA102:
         # start frame
         data += [0x00] * 4
 
-        brightness = (self.level * 0b00111111) | 0b11000000
+        brightness = int(self.level * 0b00111111) | 0b11000000
         for r, g, b in self.state:
             data += [brightness, b, g, r]
         
@@ -98,7 +98,7 @@ class APA102:
         return self.state[i]
     
     def __setitem__(self, i, x):
-        self.state[i] = x
+        self.state[i] = make_rgb(x)
         if self.auto_flush:
             self.flush()
         
