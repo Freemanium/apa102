@@ -1,29 +1,24 @@
 #!/usr/bin/env python3
 
 import time
-
-from stripctl import APA102, Color
+import math
+from stripctl import APA102
+from stripctl.colors import *
 
 strip = APA102(60)
+strip.reset(flush=True)
 
 with strip:
-    strip.reset(flush=True)
+    strip.update('red')
 
-def approx(a, b, eps=10 ** -5):
-    return abs(b-a) <= eps
-
-led = strip[29]
-led.red = 1
+# Rainbow
+i = 0
+num_states = 300
 while True:
-    asc = True
+    hue = .5*math.cos(i / num_states * 2 * math.pi) + .5
     with strip:
-        if asc:
-            led.hue += .01
-        else:
-            led.hue -= .01
-        if approx(led.hue, 1):
-            asc = False
-        elif approx(led.hue, 0):
-            asc = False
-    
+        for led in strip:
+            led.hue = hue
+
     time.sleep(.02)
+    i = (i+1) % num_states
