@@ -2,30 +2,28 @@
 
 import time
 
-from stripctl import APA102
-from stripctl.colors import *
+from stripctl import APA102, Color
 
-def levels():
-    lb = 0
-    ub = 1
-    step = .01
+strip = APA102(60)
 
-    x = lb
-    while x < ub:
-        yield x
-        x += step
+with strip:
+    strip.reset(flush=True)
 
-NUM = 60
+def approx(a, b, eps=10 ** -5):
+    return abs(b-a) <= eps
 
-strip = APA102(NUM)
-
-for lvl in levels():
+led = strip[29]
+led.red = 1
+while True:
+    asc = True
     with strip:
-        strip.level = lvl
-    time.sleep(.1)
-
-# strip[0] = BLUE
-# strip[len(strip)//2-1] = RED
-# strip[len(strip) - 1] = GREEN
-
-# strip.flush()
+        if asc:
+            led.hue += .01
+        else:
+            led.hue -= .01
+        if approx(led.hue, 1):
+            asc = False
+        elif approx(led.hue, 0):
+            asc = False
+    
+    time.sleep(.02)

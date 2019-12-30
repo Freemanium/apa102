@@ -1,38 +1,23 @@
 from .spi import SPI
+from colour import Color
 
-# TODO: Test if brightness setting can be changed per-led
-
-def crop(x, lb, ub):
-    if x < lb:
-        return lb
-    elif x > ub:
-        return ub
+def normalize(arg):
+    if isinstance(arg, list):
+        return [Color(x) for x in arg]
     else:
-        return x
-
-def make_rgb(x):
-    """ Normalizes the argument and returns an RGB tuple. """
-    if isinstance(x, int):
-        r = (x & 0xFF0000) >> 16
-        g = (x & 0x00FF00) >> 8
-        b = (x & 0x0000FF)
-        return r, g, b
-    elif isinstance(x, (tuple, list)):
-        return tuple(x)
-    else:
-        raise TypeError(x)
+        return Color(arg)
 
 class APA102:
-    def __init__(self, num_leds, auto_flush=False, base_state=(0x00, 0x00, 0x00), bus_index=0, dev_index=0):
+    def __init__(self, num_leds, auto_flush=False, base_state=Color('black'), bus_index=0, dev_index=0):
         self.num_leds = num_leds
         self.base_state = base_state
+        self.auto_flush = auto_flush
         self._spi = SPI(bus_index, dev_index)
 
-    def reset(self):
-        self._level = 1.0
-        self._state = [self.base_state] * len(self)
-        if self.auto_flush:
-            self.flush()
+    def reset(self, flush=None):
+        if flush is None:
+            flush = self.auto_flush
+        self.update([self.base_state] * len(self), level=1.0, flush=flush)
     
     @property
     def level(self):
@@ -41,27 +26,16 @@ class APA102:
     
     @level.setter
     def level(self, val):
-        self._level = crop(val, 0.0, 1.0)
-        if self.auto_flush:
-            self.flush()
+        self.update(self.state, val, flush=self.auto_flush)
         
     @property
     def state(self):
-        """ List of RGB-tuples. """
+        """ List of Color objects. """
         return self._state
     
     @state.setter
     def state(self, val):
         self.update(val, flush=self.auto_flush)
-
-    @property
-    def colors(self):
-        """ List of LED colors as an int. """
-        colors = []
-        for r, g, b in self.state:
-            col = (r << 16) | (g << 8) | (b)
-            colors.push(col)
-        return colors
 
     def flush(self):
         """ Writes the internal state to the strip. """
@@ -73,24 +47,28 @@ class APA102:
         data += [0x00] * 4
 
         brightness = int(self.level * 0b00011111) | 0b11100000
-        for r, g, b in self.state:
-            data += [brightness, b, g, r]
+        for col in self.state:
+            bgr = col.blue, col.green, col.red
+            bgr = [round(x*255) for x in bgr]
+            data += [brightness, *bgr]
         
         # end frame
         data += [0xFF] * 4
 
         self._spi.send(data)
     
-    def update(self, state, level=None, flush=True):
+    def update(self, states, level=None, flush=True):
         """ Updates the internal state, syncs with the strip if `flush` is `True`. """
         if not isinstance(states, list):
             states = [states] * len(self)
         if len(states) != len(self):
-            raise RuntimeError(f'Expected {len(self)} states, but received {len(states)}')
+            raise ValueError(f'Expected {len(self)} states, but received {len(states)}')
         
-        self._state = [make_rgb(state) for x in states]
+        self._state = normalize(states)
         if level:
-            self._level = crop(level, 0.0, 1.0)
+            if level < 0 or level > 1:
+                raise ValueError(f'Level out of range: {level} (must be in [0,1])')
+            self._level = level
         if flush:
             self.flush()
     
@@ -98,7 +76,7 @@ class APA102:
         return self.state[i]
     
     def __setitem__(self, i, x):
-        self.state[i] = make_rgb(x)
+        self.state[i] = normalize(x)
         if self.auto_flush:
             self.flush()
         
@@ -115,6 +93,7 @@ class APA102:
         return iter(range(len(self.state)))
     
     def __enter__(self):
+        """ Starts a block which is flushed at the end. """
         self._old_auto_flush = self.auto_flush
         self.auto_flush = False
     

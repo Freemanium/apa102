@@ -1,4 +1,4 @@
 from .apa102 import APA102
-from .colors import *
+from colour import Color
 
-__all__ = ['APA102']
+__all__ = ['APA102', 'Color']

@@ -12,6 +12,7 @@ setup(
 
     packages=['stripctl'],
     install_requires=[
-        'spidev'
+        'spidev',
+        'colour'
     ]
 )
