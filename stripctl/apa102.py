@@ -28,7 +28,6 @@ class APA102:
         self._spi = SPI(bus_index, dev_index)
 
         self.auto_flush = auto_flush
-        self.reset()
 
     def reset(self):
         self._level = 1.0
