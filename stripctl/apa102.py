@@ -14,6 +14,8 @@ class APA102:
         self.auto_flush = auto_flush
         self._spi = SPI(bus_index, dev_index)
 
+        self.update(self.base_state, level=1.0)
+
     def reset(self, flush=None):
         if flush is None:
             flush = self.auto_flush

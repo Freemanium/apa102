@@ -1,7 +1,9 @@
 from spidev import SpiDev
 
 class SPI:
-    def __init__(self, bus_index, dev_index, freq=8*1000**2):
+    DEFAULT_FREQ = 8*1000**2 # 8MHz
+
+    def __init__(self, bus_index, dev_index, freq=SPI.DEFAULT_FREQ):
         self.bus = bus_index
         self.dev = dev_index
         self.freq = freq
