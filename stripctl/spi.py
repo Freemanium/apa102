@@ -1,9 +1,10 @@
 from spidev import SpiDev
+from typing import Union, List
 
 class SPI:
     DEFAULT_FREQ = 8*1000**2 # 8MHz
 
-    def __init__(self, bus_index, dev_index, freq=SPI.DEFAULT_FREQ):
+    def __init__(self, bus_index: int, dev_index: int, freq: int = SPI.DEFAULT_FREQ):
         self.bus = bus_index
         self.dev = dev_index
         self.freq = freq
@@ -25,5 +26,5 @@ class SPI:
             self._spi.close()
             self._spi = None
         
-    def send(self, data):
+    def send(self, data: Union[bytes, List[int]]):
         self._spi.writebytes2(bytes(data))

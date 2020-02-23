@@ -1,42 +1,50 @@
 from .spi import SPI
 from colour import Color
 
-def normalize(arg):
+from typing import Union, Optional as Opt, List, Iterator
+
+ColorResolvable = Union[str, Color]
+StripState = List[Color]
+StripStateResolvable = Union[Color, StripState]
+
+def normalize(arg: StripStateResolvable) -> StripStateResolvable:
     if isinstance(arg, list):
         return [Color(x) for x in arg]
     else:
         return Color(arg)
 
 class APA102:
-    def __init__(self, num_leds, auto_flush=False, base_state=Color('black'), bus_index=0, dev_index=0):
+    def __init__(self, num_leds: int, auto_flush: bool = False, base_state: Opt[StripStateResolvable] = 'black', bus_index: int = 0, dev_index: int = 0):
         self.num_leds = num_leds
-        self.base_state = base_state
         self.auto_flush = auto_flush
         self._spi = SPI(bus_index, dev_index)
 
-        self.update(self.base_state, level=1.0)
+        self.base_state = base_state
+        if base_state is not None:
+            self.base_state = normalize(self.base_state)
+            self.reset()
 
-    def reset(self, flush=None):
+    def reset(self, flush: Opt[bool] = None):
         if flush is None:
             flush = self.auto_flush
-        self.update([self.base_state] * len(self), level=1.0, flush=flush)
+        self.update(self.base_state, flush=flush)
     
     @property
-    def level(self):
+    def level(self) -> float:
         """ Brightness level, 0.0 - 1.0. """
         return self._level
     
     @level.setter
-    def level(self, val):
+    def level(self, val: float):
         self.update(self.state, val, flush=self.auto_flush)
         
     @property
-    def state(self):
+    def state(self) -> StripState:
         """ List of Color objects. """
         return self._state
     
     @state.setter
-    def state(self, val):
+    def state(self, val: StripStateResolvable):
         self.update(val, flush=self.auto_flush)
 
     def flush(self):
@@ -59,7 +67,7 @@ class APA102:
 
         self._spi.send(data)
     
-    def update(self, states, level=None, flush=True):
+    def update(self, states: StripStateResolvable, level: float = None, flush: bool = True):
         """ Updates the internal state, syncs with the strip if `flush` is `True`. """
         if not isinstance(states, list):
             states = [states] * len(self)
@@ -74,24 +82,24 @@ class APA102:
         if flush:
             self.flush()
     
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> Color:
         return self.state[i]
     
-    def __setitem__(self, i, x):
+    def __setitem__(self, i: int, x: ColorResolvable):
         self.state[i] = normalize(x)
         if self.auto_flush:
             self.flush()
         
-    def __len__(self):
+    def __len__(self) -> int:
         return self.num_leds
     
-    def __str__(self):
+    def __str__(self) -> str:
         return f'APA102<{len(self)}>'
     
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Color]:
         return iter(self.state)
     
-    def iter_idx(self):
+    def iter_idx(self) -> Iterator[int]:
         return iter(range(len(self.state)))
     
     def __enter__(self):
