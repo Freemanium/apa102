@@ -3,22 +3,28 @@
 import time
 import math
 from stripctl import APA102
-from stripctl.colors import *
 
-strip = APA102(60)
-strip.reset(flush=True)
+strip = APA102(300)
+strip.state = 'red'
+strip.level = .2
 
-with strip:
-    strip.update('red')
+STEPS = 300
+DELAY = 0.02
+
+
+def wave(progress: float) -> float:
+    """ Smooth waveform in bounds [0.0, 1.0], starting at y=1.0 """
+    return 0.5 * math.cos(progress * 2*math.pi) + 0.5
 
 # Rainbow
-i = 0
-num_states = 300
-while True:
-    hue = .5*math.cos(i / num_states * 2 * math.pi) + .5
-    with strip:
-        for led in strip:
-            led.hue = hue
-
-    time.sleep(.02)
-    i = (i+1) % num_states
+try:
+    while True:
+        for step in range(STEPS):
+            hue = wave(step / STEPS)
+            with strip:
+                for led in strip:
+                    led.hue = hue
+            time.sleep(DELAY)
+    
+except KeyboardInterrupt:
+    print('^C')

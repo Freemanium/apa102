@@ -1,10 +1,11 @@
 from spidev import SpiDev
 from typing import Union, List
 
-class SPI:
-    DEFAULT_FREQ = 8*1000**2 # 8MHz
+DEFAULT_FREQ = 8*1000**2 # 8MHz
 
-    def __init__(self, bus_index: int, dev_index: int, freq: int = SPI.DEFAULT_FREQ):
+class SPI:
+
+    def __init__(self, bus_index: int, dev_index: int, freq: int = DEFAULT_FREQ):
         self.bus = bus_index
         self.dev = dev_index
         self.freq = freq

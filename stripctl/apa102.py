@@ -18,11 +18,12 @@ class APA102:
         self.num_leds = num_leds
         self.auto_flush = auto_flush
         self._spi = SPI(bus_index, dev_index)
+        self._level = 1.0
 
         self.base_state = base_state
         if base_state is not None:
             self.base_state = normalize(self.base_state)
-            self.reset()
+            self.reset(True)
 
     def reset(self, flush: Opt[bool] = None):
         if flush is None:
