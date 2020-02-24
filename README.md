@@ -2,8 +2,14 @@
 
 ## Installation
 
+With `pip`:
 ```bash
-pip install -U git+https://github.com/Freemanium/stripctl
+pip install git+https://github.com/Freemanium/stripctl
+```
+
+With `pipenv`:
+```bash
+pipenv install git+https://github.com/Freemanium/stripctl#egg=stripctl
 ```
 
 ## Usage
