@@ -9,6 +9,9 @@ pipenv-setup = "*"
 [packages]
 spidev = "*"
 colour = "*"
+flask = "*"
+flask-cors = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.7"
