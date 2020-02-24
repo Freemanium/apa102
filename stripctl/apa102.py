@@ -14,9 +14,10 @@ def normalize(arg: StripStateResolvable) -> StripStateResolvable:
         return Color(arg)
 
 class APA102:
-    def __init__(self, num_leds: int, auto_flush: bool = False, base_state: Opt[StripStateResolvable] = 'black', bus_index: int = 0, dev_index: int = 0):
+    def __init__(self, num_leds: int, auto_flush: bool = False, base_state: Opt[StripStateResolvable] = 'black', bus_index: int = 0, dev_index: int = 0, destructor: bool = True):
         self.num_leds = num_leds
         self.auto_flush = auto_flush
+        self.destructor = destructor
         self._spi = SPI(bus_index, dev_index)
         self._level = 1.0
 
@@ -111,3 +112,7 @@ class APA102:
     def __exit__(self, ex_type, ex_val, traceback):
         self.flush()
         self.auto_flush = self._old_auto_flush
+    
+    def __del__(self):
+        if self.destructor:
+            self.update('black', flush=True)
