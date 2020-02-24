@@ -131,7 +131,19 @@ setup(
     #
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=["colour==0.1.5", "spidev==3.4"],  # Optional
+    install_requires=[
+        "click==7.0",
+        "colour==0.1.5",
+        "flask==1.1.1",
+        "flask-cors==3.0.8",
+        "itsdangerous==1.1.0",
+        "jinja2==2.11.1",
+        "markupsafe==1.1.1",
+        "python-dotenv==0.11.0",
+        "six==1.14.0",
+        "spidev==3.4",
+        "werkzeug==1.0.0",
+    ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
     # syntax, for example:
