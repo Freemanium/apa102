@@ -137,7 +137,7 @@ setup(
         "flask==1.1.1",
         "flask-cors==3.0.8",
         "itsdangerous==1.1.0",
-        "jinja2==2.11.1",
+        "jinja2==2.11.3",
         "markupsafe==1.1.1",
         "python-dotenv==0.11.0",
         "six==1.14.0",
