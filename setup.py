@@ -135,7 +135,7 @@ setup(
         "click==7.0",
         "colour==0.1.5",
         "flask==1.1.1",
-        "flask-cors==3.0.8",
+        "flask-cors==3.0.9",
         "itsdangerous==1.1.0",
         "jinja2==2.11.1",
         "markupsafe==1.1.1",
